@@ -337,7 +337,7 @@ RCT_EXPORT_METHOD(updateDeviceList) {
 
     switch (mode) {
         case kAudioModeAudioCall:
-            return audioCallConfig;
+            return earpieceConfig;
         case kAudioModeDefault:
             return defaultConfig;
         case kAudioModeVideoCall:
