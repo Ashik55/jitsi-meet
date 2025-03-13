@@ -197,9 +197,6 @@
             'error', loadErrHandler, true /* capture phase type of listener */);
     </script>
     <script><!--#include virtual="/config.js" --></script><!-- adapt to your needs, i.e. set hosts and bosh path -->
-    <script>
-        try { let o = JSON.parse(localStorage.getItem("features/base/settings")); if (!o.prejoinPageEnabled) { delete o.startWithAudioMuted; delete o.startWithVideoMuted }; localStorage.setItem("features/base/settings", JSON.stringify(o)) } catch { }
-    </script>
     <script><!--#include virtual="/interface_config.js" --></script>
     <script src="libs/lib-jitsi-meet.min.js?v=139"></script>
     <script src="libs/app.bundle.min.js?v=139"></script>
