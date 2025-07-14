@@ -18,14 +18,17 @@ package org.jitsi.meet.sdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -55,6 +58,8 @@ public class JitsiMeetActivity extends AppCompatActivity
     private static final String JITSI_MEET_CONFERENCE_OPTIONS = "JitsiMeetConferenceOptions";
 
     private boolean isReadyToClose;
+    private boolean isInConference = false;
+    private OnBackPressedCallback backPressedCallback;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -104,6 +109,22 @@ public class JitsiMeetActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_jitsi_meet);
         this.jitsiView = findViewById(R.id.jitsiView);
+
+        // Setup modern back press handling
+        backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                JitsiMeetLogger.i("OnBackPressedCallback called - isInConference: " + isInConference);
+                if (isInConference) {
+                    JitsiMeetLogger.i("Showing leave confirmation dialog from callback");
+                    showLeaveConfirmationDialog();
+                } else {
+                    JitsiMeetLogger.i("Not in conference, calling delegate from callback");
+                    JitsiMeetActivityDelegate.onBackPressed();
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         registerForBroadcastMessages();
 
@@ -233,16 +254,22 @@ public class JitsiMeetActivity extends AppCompatActivity
 
     protected void onConferenceJoined(HashMap<String, Object> extraData) {
         JitsiMeetLogger.i("Conference joined: " + extraData);
+        isInConference = true;
+        JitsiMeetLogger.i("isInConference set to true");
         // Launch the service for the ongoing notification.
         JitsiMeetOngoingConferenceService.launch(this, extraData);
     }
 
     protected void onConferenceTerminated(HashMap<String, Object> extraData) {
         JitsiMeetLogger.i("Conference terminated: " + extraData);
+        isInConference = false;
+        JitsiMeetLogger.i("isInConference set to false");
     }
 
     protected void onConferenceWillJoin(HashMap<String, Object> extraData) {
         JitsiMeetLogger.i("Conference will join: " + extraData);
+        isInConference = true;
+        JitsiMeetLogger.i("isInConference set to true in onConferenceWillJoin");
     }
 
     protected void onParticipantJoined(HashMap<String, Object> extraData) {
@@ -263,6 +290,7 @@ public class JitsiMeetActivity extends AppCompatActivity
 
     protected void onReadyToClose() {
         JitsiMeetLogger.i("SDK is ready to close");
+        isInConference = false;
         isReadyToClose = true;
         finish();
     }
@@ -295,7 +323,24 @@ public class JitsiMeetActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        JitsiMeetActivityDelegate.onBackPressed();
+        JitsiMeetLogger.i("onBackPressed() called - isInConference: " + isInConference);
+        if (isInConference) {
+            JitsiMeetLogger.i("Showing leave confirmation dialog");
+            showLeaveConfirmationDialog();
+        } else {
+            JitsiMeetLogger.i("Not in conference, calling delegate");
+            JitsiMeetActivityDelegate.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        JitsiMeetLogger.i("onSupportNavigateUp() called - isInConference: " + isInConference);
+        if (isInConference) {
+            showLeaveConfirmationDialog();
+            return true;
+        }
+        return super.onSupportNavigateUp();
     }
 
     @Override
@@ -380,5 +425,36 @@ public class JitsiMeetActivity extends AppCompatActivity
                 //     break;
             }
         }
+    }
+
+    /**
+     * Shows a confirmation dialog when the user tries to leave the conference
+     */
+    private void showLeaveConfirmationDialog() {
+        JitsiMeetLogger.i("showLeaveConfirmationDialog() called");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to leave the call?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        JitsiMeetLogger.i("User confirmed leave call");
+                        // User confirmed, proceed with leaving the conference
+                        leave();
+                        JitsiMeetActivityDelegate.onBackPressed();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        JitsiMeetLogger.i("User cancelled leave call");
+                        // User cancelled, dismiss the dialog
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        JitsiMeetLogger.i("Dialog shown");
     }
 }
