@@ -178,11 +178,10 @@ MiddlewareRegistry.register(store => next => action => {
         const oldRole = oldParticipant?.role;
 
         if (oldRole && oldRole !== role && role === PARTICIPANT_ROLE.MODERATOR) {
-
-            store.dispatch(showNotification({
-                titleKey: 'notify.moderator'
-            },
-            NOTIFICATION_TIMEOUT_TYPE.SHORT));
+            // store.dispatch(showNotification({
+            //     titleKey: 'notify.moderator'
+            // },
+            // NOTIFICATION_TIMEOUT_TYPE.SHORT));
         }
 
         return next(action);
