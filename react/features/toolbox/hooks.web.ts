@@ -61,6 +61,7 @@ import { useWhiteboardButton } from '../whiteboard/hooks';
 import { setFullScreen } from './actions.web';
 import DownloadButton from './components/DownloadButton';
 import HelpButton from './components/HelpButton';
+import AudioDeviceToggleButton from './components/web/AudioDeviceToggleButton';
 import AudioSettingsButton from './components/web/AudioSettingsButton';
 import CustomOptionButton from './components/web/CustomOptionButton';
 import FullscreenButton from './components/web/FullscreenButton';
@@ -121,6 +122,12 @@ const invite = {
 const toggleCamera = {
     key: 'toggle-camera',
     Content: ToggleCameraButton,
+    group: 2
+};
+
+const audioDevice = {
+    key: 'audio-device',
+    Content: AudioDeviceToggleButton,
     group: 2
 };
 
@@ -263,6 +270,16 @@ function useHelpButton() {
 }
 
 /**
+ * A hook that returns the audio device button if audio devices are available.
+ *
+ *  @returns {Object | undefined}
+ */
+function getAudioDeviceButton() {
+    // Always return the audio device button as it provides access to audio settings
+    return audioDevice;
+}
+
+/**
 * Returns all buttons that could be rendered.
 *
 * @param {Object} _customToolbarButtons - An array containing custom buttons objects.
@@ -273,6 +290,7 @@ export function useToolboxButtons(
     const desktopSharing = getDesktopSharingButton();
     const toggleCameraButton = useToggleCameraButton();
     const _fullscreen = getFullscreenButton();
+    const _audioDevice = getAudioDeviceButton();
     const security = useSecurityDialogButton();
     const reactions = useReactionsButton();
     const participants = useParticipantPaneButton();
@@ -306,6 +324,7 @@ export function useToolboxButtons(
         tileview,
         'toggle-camera': toggleCameraButton,
         videoquality: videoQuality,
+        'audio-device': _audioDevice,
         fullscreen: _fullscreen,
         security,
         closedcaptions: cc,

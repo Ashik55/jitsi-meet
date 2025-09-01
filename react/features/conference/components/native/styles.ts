@@ -56,21 +56,27 @@ export default {
     },
 
     titleBarButtonContainer: {
-        borderRadius: 3,
-        height: BaseTheme.spacing[7],
-        marginTop: BaseTheme.spacing[1],
-        marginRight: BaseTheme.spacing[1],
+        borderRadius: 20,
+        height: 40,
+        marginRight: 8,
         zIndex: 1,
-        width: BaseTheme.spacing[7]
+        width: 40,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
 
     titleBarButton: {
         iconStyle: {
-            color: BaseTheme.palette.icon01,
-            padding: 12,
+            color: '#FFFFFF', //white icons
+            padding: 8,
             fontSize: TITLE_BAR_BUTTON_SIZE
         },
-        underlayColor: 'transparent'
+        underlayColor: 'rgba(255, 255, 255, 0.1)', // Subtle white highlight
+        borderRadius: 20,
+        width: 40,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
 
     lonelyMeetingContainer: {
@@ -115,10 +121,49 @@ export default {
 
     titleBarWrapper: {
         alignItems: 'center',
-        flex: 1,
+        backgroundColor: '#000000',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
         flexDirection: 'row',
-        height: BaseTheme.spacing[8],
-        justifyContent: 'center'
+        height: 56,
+        paddingHorizontal: 16,
+        paddingTop: 8,
+        justifyContent: 'space-between'
+    },
+
+    // Minimize/back button
+    minimizeButton: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 8
+    },
+
+    minimizeIcon: {
+        color: '#FFFFFF',
+        fontSize: 24
+    },
+
+    // Center content wrapper for title and timer
+    titleContentWrapper: {
+        flex: 1,
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        paddingHorizontal: 8
+    },
+
+    // Right side icons container
+    topRightIcons: {
+        flexDirection: 'row',
+        alignItems: 'center'
     },
 
     alwaysOnTitleBar: {
@@ -136,10 +181,12 @@ export default {
     },
 
     roomTimer: {
-        ...BaseTheme.typography.bodyShortBold,
-        color: BaseTheme.palette.text01,
-        lineHeight: 14,
-        textAlign: 'center'
+        ...BaseTheme.typography.bodyShortRegular,
+        color: '#B1C4B7',
+        fontSize: 13,
+        lineHeight: 16,
+        textAlign: 'left',
+        marginTop: 2
     },
 
     roomTimerView: {
@@ -153,9 +200,12 @@ export default {
     },
 
     roomName: {
-        color: BaseTheme.palette.text01,
+        color: '#FFFFFF',
         ...BaseTheme.typography.bodyShortBold,
-        paddingVertical: 6
+        fontSize: 16,
+        lineHeight: 20,
+        paddingVertical: 0,
+        marginBottom: 2
     },
 
     roomNameView: {

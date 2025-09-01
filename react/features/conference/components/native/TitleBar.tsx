@@ -1,16 +1,16 @@
 import React from 'react';
-import { Text, View, ViewStyle } from 'react-native';
+import { Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { connect } from 'react-redux';
 
 import { IReduxState } from '../../../app/types';
 import { getConferenceName, getConferenceTimestamp } from '../../../base/conference/functions';
 import {
-    AUDIO_DEVICE_BUTTON_ENABLED,
     CONFERENCE_TIMER_ENABLED,
     TOGGLE_CAMERA_BUTTON_ENABLED
 } from '../../../base/flags/constants';
 import { getFeatureFlag } from '../../../base/flags/functions';
-import AudioDeviceToggleButton from '../../../mobile/audio-mode/components/AudioDeviceToggleButton';
+import Icon from '../../../base/icons/components/Icon';
+import { IconArrowLeft, IconVideoOff, IconUsers } from '../../../base/icons/svg';
 import PictureInPictureButton from '../../../mobile/picture-in-picture/components/PictureInPictureButton';
 import ParticipantsPaneButton from '../../../participants-pane/components/native/ParticipantsPaneButton';
 import { isParticipantsPaneEnabled } from '../../../participants-pane/functions';
@@ -25,10 +25,6 @@ import styles from './styles';
 
 interface IProps {
 
-    /**
-     * Whether the audio device button should be displayed.
-     */
-    _audioDeviceButtonEnabled: boolean;
 
     /**
      * Whether displaying the current conference timer is enabled or not.
@@ -84,50 +80,33 @@ const TitleBar = (props: IProps) => {
     return (
         <View
             style = { styles.titleBarWrapper as ViewStyle }>
-            <View style = { styles.pipButtonContainer as ViewStyle }>
-                <PictureInPictureButton styles = { styles.pipButton } />
+            <TouchableOpacity style={ styles.minimizeButton }>
+                <Icon src={ IconArrowLeft } style={ styles.minimizeIcon } />
+            </TouchableOpacity>
+            <View pointerEvents = 'box-none' style = { styles.titleContentWrapper as ViewStyle }>
+                <Text 
+                    style = { styles.roomName }
+                    numberOfLines = { 1 }
+                    ellipsizeMode = 'tail'>
+                    { props._meetingName }
+                </Text>
+                <ConferenceTimer textStyle = { styles.roomTimer } />
             </View>
-            <View
-                pointerEvents = 'box-none'
-                style = { styles.roomNameWrapper as ViewStyle }>
+            <View style = { styles.topRightIcons as ViewStyle }>
                 {
-                    props._conferenceTimerEnabled
-                    && <View style = { styles.roomTimerView as ViewStyle }>
-                        <ConferenceTimer textStyle = { styles.roomTimer } />
+                    props._toggleCameraButtonEnabled
+                    && <View style = { styles.titleBarButtonContainer }>
+                        <ToggleCameraButton styles = { styles.titleBarButton } />
                     </View>
                 }
                 {
-                    props._roomNameEnabled
-                    && <View style = { styles.roomNameView as ViewStyle }>
-                        <Text
-                            numberOfLines = { 1 }
-                            style = { styles.roomName }>
-                            { props._meetingName }
-                        </Text>
+                    props._isParticipantsPaneEnabled
+                    && <View style = { styles.titleBarButtonContainer }>
+                        <ParticipantsPaneButton
+                            styles = { styles.titleBarButton } />
                     </View>
                 }
-                {/* eslint-disable-next-line react/jsx-no-bind */}
-                <Labels createOnPress = { props._createOnPress } />
             </View>
-            {
-                props._toggleCameraButtonEnabled
-                && <View style = { styles.titleBarButtonContainer }>
-                    <ToggleCameraButton styles = { styles.titleBarButton } />
-                </View>
-            }
-            {
-                props._audioDeviceButtonEnabled
-                && <View style = { styles.titleBarButtonContainer }>
-                    <AudioDeviceToggleButton styles = { styles.titleBarButton } />
-                </View>
-            }
-            {
-                _isParticipantsPaneEnabled
-                && <View style = { styles.titleBarButtonContainer }>
-                    <ParticipantsPaneButton
-                        styles = { styles.titleBarButton } />
-                </View>
-            }
         </View>
     );
 };
@@ -143,7 +122,6 @@ function _mapStateToProps(state: IReduxState) {
     const startTimestamp = getConferenceTimestamp(state);
 
     return {
-        _audioDeviceButtonEnabled: getFeatureFlag(state, AUDIO_DEVICE_BUTTON_ENABLED, true),
         _conferenceTimerEnabled:
             Boolean(getFeatureFlag(state, CONFERENCE_TIMER_ENABLED, true) && !hideConferenceTimer && startTimestamp),
         _isParticipantsPaneEnabled: isParticipantsPaneEnabled(state),

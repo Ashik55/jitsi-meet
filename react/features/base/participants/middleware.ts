@@ -735,12 +735,12 @@ function _localRecordingUpdated({ dispatch, getState }: IStore, conference: IJit
     }));
     const participantName = getParticipantDisplayName(state, participantId);
 
-    dispatch(showNotification({
-        titleKey: 'notify.somebody',
-        title: participantName,
-        descriptionKey: newValue ? 'notify.localRecordingStarted' : 'notify.localRecordingStopped',
-        uid: LOCAL_RECORDING_NOTIFICATION_ID
-    }, NOTIFICATION_TIMEOUT_TYPE.MEDIUM));
+    // dispatch(showNotification({
+    //     titleKey: 'notify.somebody',
+    //     title: participantName,
+    //     descriptionKey: newValue ? 'notify.localRecordingStarted' : 'notify.localRecordingStopped',
+    //     uid: LOCAL_RECORDING_NOTIFICATION_ID
+    // }, NOTIFICATION_TIMEOUT_TYPE.MEDIUM));
     dispatch(playSound(newValue ? RECORDING_ON_SOUND_ID : RECORDING_OFF_SOUND_ID));
 }
 
@@ -847,14 +847,14 @@ function _raiseHandUpdated({ dispatch, getState }: IStore, conference: IJitsiCon
         } else {
             notificationTitle = participantName;
         }
-        dispatch(showNotification({
-            titleKey: 'notify.somebody',
-            title: notificationTitle,
-            descriptionKey: 'notify.raisedHand',
-            concatText: true,
-            uid: RAISE_HAND_NOTIFICATION_ID,
-            ...action
-        }, NOTIFICATION_TIMEOUT_TYPE.MEDIUM));
+        // dispatch(showNotification({
+        //     titleKey: 'notify.somebody',
+        //     title: notificationTitle,
+        //     descriptionKey: 'notify.raisedHand',
+        //     concatText: true,
+        //     uid: RAISE_HAND_NOTIFICATION_ID,
+        //     ...action
+        // }, NOTIFICATION_TIMEOUT_TYPE.MEDIUM));
         dispatch(playSound(RAISE_HAND_SOUND_ID));
     }
 }

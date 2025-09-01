@@ -74,8 +74,11 @@ function Toolbox(props: IProps) {
         toolbarButtons
     });
 
+    // TEMP: Log the keys of mainMenuButtons for debugging
+    console.log('mainMenuButtons:', mainMenuButtons.map(b => b.key));
+
     const bottomEdge = Platform.OS === 'ios' && _visible;
-    const { buttonStylesBorderless, hangupButtonStyles } = _styles;
+    const { buttonStylesBorderless, hangupButtonStyles, toolbarButtonIcon } = _styles;
     const style = { ...styles.toolbox };
 
     // We have only hangup and raisehand button in _iAmVisitor mode
@@ -88,20 +91,21 @@ function Toolbox(props: IProps) {
             return;
         }
 
+        // Remove the 3rd item from the left (index 2)
+        const filteredButtons = mainMenuButtons.filter((_, idx) => idx !== 2);
+
         return (
-            <>
-                {
-                    mainMenuButtons?.map(({ Content, key, text, ...rest }: IToolboxNativeButton) => (
-                        <Content
-                            { ...rest }
-                            /* eslint-disable react/jsx-no-bind */
-                            handleClick = { () => dispatch(customButtonPressed(key, text)) }
-                            isToolboxButton = { true }
-                            key = { key }
-                            styles = { key === 'hangup' ? hangupButtonStyles : buttonStylesBorderless } />
-                    ))
-                }
-            </>
+            filteredButtons?.map(({ Content, key, text, ...rest }: IToolboxNativeButton) => (
+                <View key={ key } style={ styles.toolbarButton as ViewStyle }>
+                    <Content
+                        { ...rest }
+                        /* eslint-disable react/jsx-no-bind */
+                        handleClick={ () => dispatch(customButtonPressed(key, text)) }
+                        isToolboxButton={ true }
+                        styles={ key === 'hangup' ? hangupButtonStyles : buttonStylesBorderless }
+                    />
+                </View>
+            ))
         );
     };
 

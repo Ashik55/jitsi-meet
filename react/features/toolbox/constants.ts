@@ -40,23 +40,23 @@ export const THRESHOLDS = [
 export const NATIVE_THRESHOLDS = [
     {
         width: 560,
-        order: [ 'microphone', 'camera', 'chat', 'screensharing', 'raisehand', 'tileview', 'overflowmenu', 'hangup' ]
+        order: [ 'microphone', 'camera', 'chat', 'screensharing', 'raisehand', 'audiodevice', 'tileview', 'overflowmenu', 'hangup' ]
     },
     {
         width: 500,
-        order: [ 'microphone', 'camera', 'chat', 'raisehand', 'tileview', 'overflowmenu', 'hangup' ]
+        order: [ 'microphone', 'camera', 'chat', 'raisehand', 'audiodevice', 'tileview', 'overflowmenu', 'hangup' ]
     },
     {
         width: 440,
-        order: [ 'microphone', 'camera', 'chat', 'raisehand', 'overflowmenu', 'hangup' ]
+        order: [ 'microphone', 'camera', 'chat', 'raisehand', 'audiodevice', 'overflowmenu', 'hangup' ]
     },
     {
         width: 380,
-        order: [ 'microphone', 'camera', 'chat', 'overflowmenu', 'hangup' ]
+        order: [ 'microphone', 'camera', 'chat', 'audiodevice', 'overflowmenu', 'hangup' ]
     },
     {
         width: 320,
-        order: [ 'microphone', 'camera', 'overflowmenu', 'hangup' ]
+        order: [ 'microphone', 'camera', 'audiodevice', 'overflowmenu', 'hangup' ]
     }
 ];
 
@@ -163,6 +163,7 @@ export const TOOLBAR_BUTTONS: ToolbarButton[] = [
  * @type Array<string>
  */
 export const NATIVE_TOOLBAR_BUTTONS: NativeToolbarButton[] = [
+    'audiodevice',
     'camera',
     'chat',
     'hangup',

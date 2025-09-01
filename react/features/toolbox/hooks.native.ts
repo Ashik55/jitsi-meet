@@ -1,6 +1,9 @@
 import { useSelector } from 'react-redux';
 
+import { AUDIO_DEVICE_BUTTON_ENABLED } from '../base/flags/constants';
+import { getFeatureFlag } from '../base/flags/functions';
 import ChatButton from '../chat/components/native/ChatButton';
+import AudioDeviceToggleButton from '../mobile/audio-mode/components/AudioDeviceToggleButton';
 import RaiseHandContainerButtons from '../reactions/components/native/RaiseHandContainerButtons';
 import TileViewButton from '../video-layout/components/TileViewButton';
 import { iAmVisitor } from '../visitors/functions';
@@ -55,6 +58,12 @@ const overflowmenu = {
     key: 'overflowmenu',
     Content: OverflowMenuButton,
     group: 3
+};
+
+const audiodevice = {
+    key: 'audiodevice',
+    Content: AudioDeviceToggleButton,
+    group: 2
 };
 
 const hangup = {
@@ -130,6 +139,20 @@ function getTileViewButton() {
 }
 
 /**
+ * A hook that returns the audio device button.
+ *
+ *  @returns {Object | undefined}
+ */
+function getAudioDeviceButton() {
+    const _iAmVisitor = useSelector(iAmVisitor);
+    const _audioDeviceButtonEnabled = useSelector((state) => getFeatureFlag(state, AUDIO_DEVICE_BUTTON_ENABLED, true));
+
+    if (!_iAmVisitor && _audioDeviceButtonEnabled) {
+        return audiodevice;
+    }
+}
+
+/**
  * A hook that returns the overflow menu button.
  *
  *  @returns {Object | undefined}
@@ -155,6 +178,7 @@ export function useNativeToolboxButtons(
     const chatButton = getChatButton();
     const screenSharingButton = getScreenSharingButton();
     const tileViewButton = getTileViewButton();
+    const audioDeviceButton = getAudioDeviceButton();
     const overflowMenuButton = getOverflowMenuButton();
 
     const buttons: { [key in NativeToolbarButton]?: IToolboxNativeButton; } = {
@@ -164,6 +188,7 @@ export function useNativeToolboxButtons(
         screensharing: screenSharingButton,
         raisehand,
         tileview: tileViewButton,
+        audiodevice: audioDeviceButton,
         overflowmenu: overflowMenuButton,
         hangup
     };

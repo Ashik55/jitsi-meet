@@ -80,30 +80,49 @@ const styles = {
         flexDirection: 'column'
     },
 
-    /**
-     * The style of the toolbar.
-     */
-    toolbox: {
-        alignItems: 'center',
-        backgroundColor: BaseTheme.palette.uiBackground,
-        borderTopLeftRadius: 3,
-        borderTopRightRadius: 3,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
+/**
+ * The style of the toolbar.
+ */
+toolbox: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 40,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginHorizontal: BaseTheme.spacing[4],
+    marginBottom: BaseTheme.spacing[6],
+    paddingVertical: BaseTheme.spacing[2],
+    paddingHorizontal: BaseTheme.spacing[4]
+},
 
-    /**
-     * The style of the root/top-level container of {@link Toolbox}.
-     */
-    toolboxContainer: {
-        backgroundColor: BaseTheme.palette.uiBackground,
-        flexDirection: 'column',
-        maxWidth: 580,
-        marginHorizontal: 'auto',
-        marginVertical: BaseTheme.spacing[0],
-        paddingHorizontal: BaseTheme.spacing[2],
-        width: '100%'
-    },
+toolbarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    flex: 1
+},
+
+toolbarButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: BaseTheme.spacing[1]
+},
+
+/**
+ * The style of the root/top-level container of {@link Toolbox}.
+ */
+toolboxContainer: {
+    backgroundColor: 'transparent',
+    flexDirection: 'column',
+    maxWidth: 580,
+    marginHorizontal: 'auto',
+    marginVertical: BaseTheme.spacing[0],
+    width: '100%'
+},
 
     toolboxButtonIconContainer: {
         alignItems: 'center',
@@ -129,12 +148,21 @@ ColorSchemeRegistry.register('Toolbox', {
     },
 
     buttonStylesBorderless: {
-        iconStyle: whiteToolbarButtonIcon,
-        style: {
-            ...toolbarButton,
-            backgroundColor: 'transparent'
+        iconStyle: {
+            ...whiteToolbarButtonIcon,
+            fontSize: 28
         },
-        underlayColor: 'transparent'
+        style: {
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginHorizontal: 0,
+            marginVertical: 0
+        },
+        underlayColor: 'rgba(255, 255, 255, 0.4)'
     },
 
     backgroundToggle: {
@@ -153,10 +181,19 @@ ColorSchemeRegistry.register('Toolbox', {
     },
 
     hangupButtonStyles: {
-        iconStyle: whiteToolbarButtonIcon,
+        iconStyle: {
+            ...whiteToolbarButtonIcon,
+            fontSize: 28
+        },
         style: {
-            ...toolbarButton,
-            backgroundColor: schemeColor('hangup')
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: schemeColor('hangup'),
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginHorizontal: 0,
+            marginVertical: 0
         },
         underlayColor: BaseTheme.palette.ui04
     },

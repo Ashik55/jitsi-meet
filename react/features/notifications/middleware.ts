@@ -132,9 +132,9 @@ MiddlewareRegistry.register(store => next => action => {
             && !isWhiteboardParticipant(p)
             && !joinLeaveNotificationsDisabled()
             && !p.isReplacing) {
-            dispatch(showParticipantJoinedNotification(
-                getParticipantDisplayName(state, p.id)
-            ));
+            // dispatch(showParticipantJoinedNotification(
+            //     getParticipantDisplayName(state, p.id)
+            // ));
         }
 
         return result;
@@ -152,9 +152,9 @@ MiddlewareRegistry.register(store => next => action => {
                 && !isScreenShareParticipant(participant)
                 && !isWhiteboardParticipant(participant)
                 && !action.participant.isReplaced) {
-                dispatch(showParticipantLeftNotification(
-                    getParticipantDisplayName(state, participant.id)
-                ));
+                // dispatch(showParticipantLeftNotification(
+                //     getParticipantDisplayName(state, participant.id)
+                // ));
             }
         }
 

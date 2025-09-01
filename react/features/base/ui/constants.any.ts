@@ -3,6 +3,7 @@
  */
 export enum BUTTON_TYPES {
     DESTRUCTIVE = 'destructive',
+    ROUNDED_DESTRUCTIVE = 'rounded_destructive',
     PRIMARY = 'primary',
     SECONDARY = 'secondary',
     TERTIARY = 'tertiary'

@@ -1219,6 +1219,7 @@
         "accessibilityLabel": {
             "Settings": "Open settings",
             "audioOnly": "Toggle audio only",
+            "audioDevice": "Select audio device",
             "audioRoute": "Select the sound device",
             "boo": "Boo",
             "breakoutRooms": "Breakout rooms",
@@ -1310,6 +1311,7 @@
         "addPeople": "Add people to your call",
         "audioOnlyOff": "Disable low bandwidth mode",
         "audioOnlyOn": "Enable low bandwidth mode",
+        "audioDevice": "Select audio device",
         "audioRoute": "Select the sound device",
         "audioSettings": "Audio settings",
         "authenticate": "Authenticate",

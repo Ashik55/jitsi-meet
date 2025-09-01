@@ -150,5 +150,15 @@ export default {
     iconButtonContainerDisabled: {
         ...iconButtonContainer,
         backgroundColor: BaseTheme.palette.disabled01
+    },
+
+    iconButtonContainerRoundedDestructive: {
+        alignItems: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        borderRadius: 30,
+        height: 60,
+        width: 60,
+        backgroundColor: 'rgb(227,79,86)'
     }
 };

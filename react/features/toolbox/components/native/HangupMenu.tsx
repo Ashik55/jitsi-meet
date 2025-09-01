@@ -11,7 +11,7 @@ import { endConference } from '../../../base/conference/actions';
 import { hideSheet } from '../../../base/dialog/actions';
 import BottomSheet from '../../../base/dialog/components/native/BottomSheet';
 import { PARTICIPANT_ROLE } from '../../../base/participants/constants';
-import { getLocalParticipant } from '../../../base/participants/functions';
+import { getLocalParticipant, getParticipantCount } from '../../../base/participants/functions';
 import Button from '../../../base/ui/components/native/Button';
 import { BUTTON_TYPES } from '../../../base/ui/constants.native';
 import { moveToRoom } from '../../../breakout-rooms/actions';
@@ -29,6 +29,7 @@ function HangupMenu() {
     const isModerator = useSelector((state: IReduxState) =>
         getLocalParticipant(state)?.role === PARTICIPANT_ROLE.MODERATOR);
     const { DESTRUCTIVE, SECONDARY } = BUTTON_TYPES;
+    const participantCount = useSelector(getParticipantCount);
 
     const handleEndConference = useCallback(() => {
         dispatch(hideSheet());
@@ -51,18 +52,24 @@ function HangupMenu() {
     return (
         <BottomSheet>
             <View style = { _styles.hangupMenuContainer }>
-                { isModerator && <Button
+                { participantCount <= 2 && <Button
                     accessibilityLabel = 'toolbar.endConference'
                     labelKey = 'toolbar.endConference'
                     onClick = { handleEndConference }
                     style = { _styles.hangupButton }
                     type = { DESTRUCTIVE } /> }
-                <Button
+                { participantCount > 2 && isModerator && <Button
+                    accessibilityLabel = 'toolbar.endConference'
+                    labelKey = 'toolbar.endConference'
+                    onClick = { handleEndConference }
+                    style = { _styles.hangupButton }
+                    type = { DESTRUCTIVE } /> }
+                { participantCount > 2 && <Button
                     accessibilityLabel = 'toolbar.leaveConference'
                     labelKey = 'toolbar.leaveConference'
                     onClick = { handleLeaveConference }
                     style = { _styles.hangupButton }
-                    type = { SECONDARY } />
+                    type = { SECONDARY } /> }
                 { inBreakoutRoom && <Button
                     accessibilityLabel = 'breakoutRooms.actions.leaveBreakoutRoom'
                     labelKey = 'breakoutRooms.actions.leaveBreakoutRoom'

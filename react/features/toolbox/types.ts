@@ -16,7 +16,8 @@ export interface IToolboxNativeButton {
     text?: string;
 }
 
-export type ToolbarButton = 'camera' |
+export type ToolbarButton = 'audio-device' |
+    'camera' |
     'chat' |
     'closedcaptions' |
     'desktop' |
@@ -81,6 +82,7 @@ export type NativeToolbarButton = 'camera' |
     'raisehand' |
     'screensharing' |
     'tileview' |
+    'audiodevice' |
     'overflowmenu' |
     'hangup';
 

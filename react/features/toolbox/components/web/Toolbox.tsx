@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { IReduxState } from '../../../app/types';
 import { isMobileBrowser } from '../../../base/environment/utils';
-import { getLocalParticipant, isLocalParticipantModerator } from '../../../base/participants/functions';
+import { getLocalParticipant, getParticipantCount, isLocalParticipantModerator } from '../../../base/participants/functions';
 import ContextMenu from '../../../base/ui/components/web/ContextMenu';
 import { isReactionsButtonEnabled, shouldDisplayReactionsButtons } from '../../../reactions/functions.web';
 import { isTranscribing } from '../../../transcribing/functions';
@@ -91,6 +91,7 @@ export default function Toolbox({
     const isDialogVisible = useSelector((state: IReduxState) => Boolean(state['features/base/dialog'].component));
     const jwt = useSelector((state: IReduxState) => state['features/base/jwt'].jwt);
     const localParticipant = useSelector(getLocalParticipant);
+    const participantCount = useSelector(getParticipantCount);
     const transcribing = useSelector(isTranscribing);
 
     // Do not convert to selector, it returns new array and will cause re-rendering of toolbox on every action.
@@ -311,12 +312,21 @@ export default function Toolbox({
                                         hidden = { false }
                                         inDrawer = { overflowDrawer }
                                         onKeyDown = { onEscKey }>
-                                        <EndConferenceButton
-                                            buttonKey = 'end-meeting'
-                                            notifyMode = { buttonsWithNotifyClick?.get('end-meeting') } />
-                                        <LeaveConferenceButton
-                                            buttonKey = 'hangup'
-                                            notifyMode = { buttonsWithNotifyClick?.get('hangup') } />
+                                        {participantCount <= 2 && (
+                                            <EndConferenceButton
+                                                buttonKey = 'end-meeting'
+                                                notifyMode = { buttonsWithNotifyClick?.get('end-meeting') } />
+                                        )}
+                                        {participantCount > 2 && isModerator && (
+                                            <EndConferenceButton
+                                                buttonKey = 'end-meeting'
+                                                notifyMode = { buttonsWithNotifyClick?.get('end-meeting') } />
+                                        )}
+                                        {participantCount > 2 && (
+                                            <LeaveConferenceButton
+                                                buttonKey = 'hangup'
+                                                notifyMode = { buttonsWithNotifyClick?.get('hangup') } />
+                                        )}
                                     </ContextMenu>
                                 </HangupMenuButton>
                                 : <HangupButton
