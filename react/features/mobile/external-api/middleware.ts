@@ -117,8 +117,14 @@ let eventEmitter: any;
 
 const { ExternalAPI } = NativeModules;
 
-if (externalAPIEnabled) {
-    eventEmitter = new NativeEventEmitter(ExternalAPI);
+if (externalAPIEnabled && ExternalAPI) {
+    // Check if ExternalAPI has the required methods before creating NativeEventEmitter
+    if (ExternalAPI.addListener && ExternalAPI.removeListeners) {
+        eventEmitter = new NativeEventEmitter(ExternalAPI);
+    } else {
+        console.warn('ExternalAPI module missing required methods for NativeEventEmitter');
+        eventEmitter = null;
+    }
 }
 
 /**

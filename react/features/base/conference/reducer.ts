@@ -12,6 +12,8 @@ import { assign, equals, set } from '../redux/functions';
 
 import {
     AUTH_STATUS_CHANGED,
+    CALLING_STARTED,
+    CALLING_STOPPED,
     CONFERENCE_FAILED,
     CONFERENCE_JOINED,
     CONFERENCE_LEFT,
@@ -40,6 +42,7 @@ import { isRoomValid } from './functions';
 
 const DEFAULT_STATE = {
     assumedBandwidthBps: undefined,
+    calling: false,
     conference: undefined,
     dataChannelOpen: undefined,
     e2eeSupported: undefined,
@@ -159,6 +162,7 @@ export interface IConferenceState {
     authEnabled?: boolean;
     authLogin?: string;
     authRequired?: IJitsiConference;
+    calling?: boolean;
     conference?: IJitsiConference;
     conferenceTimestamp?: number;
     dataChannelOpen?: boolean;
@@ -230,6 +234,12 @@ ReducerRegistry.register<IConferenceState>('features/base/conference',
 
         case CONFERENCE_TIMESTAMP_CHANGED:
             return set(state, 'conferenceTimestamp', action.conferenceTimestamp);
+
+        case CALLING_STARTED:
+            return set(state, 'calling', true);
+
+        case CALLING_STOPPED:
+            return set(state, 'calling', false);
 
         case CONFERENCE_LEFT:
         case CONFERENCE_WILL_LEAVE:

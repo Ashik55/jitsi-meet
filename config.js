@@ -33,7 +33,7 @@ var config = {
         domain: 'jitsi-meet.example.com',
 
         // When using authentication, domain for guest users.
-        // anonymousdomain: 'guest.example.com',
+        // anonymousdomain: undefined, // Disable guest access
 
         // Domain for authenticated users. Defaults to <domain>.
         // authdomain: 'jitsi-meet.example.com',
@@ -670,7 +670,7 @@ var config = {
     // hideAddRoomButton: false,
 
     // Require users to always specify a display name.
-    // requireDisplayName: true,
+    requireDisplayName: true,
 
     // Enables webhid functionality for Audio.
     // enableWebHIDFeature: false,
@@ -725,7 +725,7 @@ var config = {
     // defaultLocalDisplayName: 'me',
 
     // Default remote name to be displayed
-    // defaultRemoteDisplayName: 'Fellow Jitster',
+    defaultRemoteDisplayName: '',
 
     // Hides the display name from the participant thumbnail
     // hideDisplayName: false,

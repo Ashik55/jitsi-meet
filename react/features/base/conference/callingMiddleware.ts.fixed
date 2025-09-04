@@ -1,0 +1,320 @@
+import { AnyAction } from 'redux';
+
+import { IStore } from '../../app/types';
+import { CALLING_SOUND_ID } from '../../invite/constants';
+import MiddlewareRegistry from '../redux/MiddlewareRegistry';
+import { hangup } from '../connection/actions.native';
+import { callingStarted, callingStopped } from './actions.any';
+import { disconnect } from '../connection/actions.any';
+import { CALLING_STARTED, CALLING_STOPPED, CONFERENCE_JOINED, CONFERENCE_LEFT } from './actionTypes';
+import { PARTICIPANT_JOINED, PARTICIPANT_LEFT } from '../participants/actionTypes';
+import { getRemoteParticipantCount } from '../participants/functions';
+import { playCallingSound, stopCallingSound, forceCleanupCallingSound } from '../sounds/SimpleAudioPlayer';
+
+let callingTimeoutId: number | undefined;
+let callingStateStartTime: number | undefined;
+const CALLING_TIMEOUT_DURATION = 30000; // 30 seconds
+const CLEANUP_GRACE_PERIOD = 1000; // 1 second grace period for cleanup
+
+/**
+ * Middleware that handles the calling state logic.
+ * Implements Android-like behavior:
+ * - Plays looping calling sound when alone in conference
+ * - Stops sound and calling state when participant joins
+ * - Leaves conference automatically after 30-second timeout if no one joins
+ *
+ * @param {Store} store - The redux store.
+ * @returns {Function}
+ */
+MiddlewareRegistry.register((store: IStore) => (next: Function) => (action: AnyAction) => {
+    const result = next(action);
+
+    switch (action.type) {
+    case CONFERENCE_JOINED: {
+        try {
+            const state = store.getState();
+            const remoteParticipantCount = getRemoteParticipantCount(state);
+
+            console.log('🏠 [PRODUCTION] Conference joined, remote participants:', remoteParticipantCount);
+            console.log('🏠 [PRODUCTION] Conference state:', {
+                hasConference: !!state['features/base/conference'].conference,
+                conferenceId: state['features/base/conference'].conference?.getId?.() || 'unknown',
+                localParticipantId: state['features/base/participants'].local?.id || 'unknown'
+            });
+
+            // Clean up any existing calling state first
+            if (callingTimeoutId) {
+                console.log('🧹 [PRODUCTION] Clearing existing timeout from previous session');
+                clearTimeout(callingTimeoutId);
+                callingTimeoutId = undefined;
+            }
+
+            // Force cleanup any lingering audio
+            forceCleanupCallingSound();
+
+            // If no remote participants, start calling state
+            if (remoteParticipantCount === 0) {
+                console.log('📞 [PRODUCTION] Starting calling state - no remote participants');
+                callingStateStartTime = Date.now();
+                store.dispatch(callingStarted());
+            } else {
+                console.log('👥 [PRODUCTION] Conference has participants, skipping calling state');
+            }
+        } catch (error) {
+            console.error('❌ [PRODUCTION] Error in CONFERENCE_JOINED:', error);
+            // Ensure we don't leave resources in bad state
+            forceCleanupCallingSound();
+        }
+        break;
+    }
+
+    case PARTICIPANT_JOINED: {
+        try {
+            const { participant } = action;
+
+            console.log('👤 [PRODUCTION] Participant joined:', {
+                id: participant.id,
+                local: participant.local,
+                fakeParticipant: participant.fakeParticipant,
+                displayName: participant.name || 'unknown',
+                role: participant.role || 'unknown'
+            });
+
+            // Don't count local participants or fake participants for calling state
+            if (participant.local || participant.fakeParticipant) {
+                console.log('🚫 [PRODUCTION] Ignoring local or fake participant');
+                break;
+            }
+
+            const state = store.getState();
+            const { calling } = state['features/base/conference'];
+
+            console.log('📞 [PRODUCTION] Current calling state:', calling);
+
+            // If we were in calling state and a real remote participant joined, stop calling
+            if (calling) {
+                const participantJoinedTime = Date.now();
+                const callingDuration = callingStateStartTime ? participantJoinedTime - callingStateStartTime : 0;
+
+                console.log('👥 [PRODUCTION] Real participant joined, stopping calling state');
+                console.log('👥 [PRODUCTION] Participant joined at:', new Date(participantJoinedTime).toLocaleTimeString());
+                console.log('👥 [PRODUCTION] Calling duration before answer:', callingDuration, 'ms');
+
+                // Immediately stop the calling sound and state
+                store.dispatch(callingStopped());
+                console.log('📞 [PRODUCTION] Calling state stopped due to participant joining');
+
+                // Clear the timeout since we got answered
+                if (callingTimeoutId) {
+                    clearTimeout(callingTimeoutId);
+                    callingTimeoutId = undefined;
+                    console.log('🧹 [PRODUCTION] Cleared calling timeout - call answered');
+                }
+            } else {
+                console.log('👥 [PRODUCTION] Participant joined but not in calling state');
+            }
+        } catch (error) {
+            console.error('❌ [PRODUCTION] Error in PARTICIPANT_JOINED:', error);
+            // Emergency cleanup
+            forceCleanupCallingSound();
+        }
+        break;
+    }
+
+    case PARTICIPANT_LEFT: {
+        try {
+            const { participant } = action;
+
+            console.log('👋 [PRODUCTION] Participant left:', {
+                id: participant.id,
+                local: participant.local,
+                fakeParticipant: participant.fakeParticipant,
+                displayName: participant.name || 'unknown'
+            });
+
+            // Don't count local participants or fake participants for calling state
+            if (participant.local || participant.fakeParticipant) {
+                console.log('🚫 [PRODUCTION] Ignoring local or fake participant leaving');
+                break;
+            }
+
+            const state = store.getState();
+            const remoteParticipantCount = getRemoteParticipantCount(state);
+
+            console.log('👥 [PRODUCTION] Remaining remote participants:', remoteParticipantCount);
+
+            // If this was the last remote participant, start calling again
+            if (remoteParticipantCount === 0) {
+                console.log('📞 [PRODUCTION] Last participant left, restarting calling state');
+                callingStateStartTime = Date.now();
+                store.dispatch(callingStarted());
+            } else {
+                console.log('👥 [PRODUCTION] Other participants still present, maintaining current state');
+            }
+        } catch (error) {
+            console.error('❌ [PRODUCTION] Error in PARTICIPANT_LEFT:', error);
+            // Emergency cleanup
+            forceCleanupCallingSound();
+        }
+        break;
+    }
+
+    case CALLING_STARTED: {
+        try {
+            console.log('🎵 [PRODUCTION] Starting calling sound with looping');
+            console.log('🎵 [PRODUCTION] Calling state start time:', new Date(callingStateStartTime || Date.now()).toLocaleTimeString());
+
+            // Clear any existing timeouts and sounds first
+            console.log('🧹 [PRODUCTION] Cleaning up previous calling session');
+            stopCallingSound().catch((error) => {
+                console.error('❌ [PRODUCTION] Error stopping previous sound:', error);
+            });
+
+            if (callingTimeoutId) {
+                clearTimeout(callingTimeoutId);
+                callingTimeoutId = undefined;
+                console.log('🧹 [PRODUCTION] Cleared previous timeout');
+            }
+
+            // Play the calling sound using our production-ready audio player
+            playCallingSound(CALLING_TIMEOUT_DURATION)
+                .then(() => {
+                    console.log('✅ [PRODUCTION] Calling sound started successfully');
+                })
+                .catch((error) => {
+                    console.error('❌ [PRODUCTION] Failed to start calling sound:', error);
+                    console.warn('⚠️ [PRODUCTION] Continuing with timeout even though sound failed');
+                });
+
+            // Set timeout for calling state (30 seconds)
+            callingTimeoutId = setTimeout(() => {
+                console.log('⏰ [PRODUCTION] Calling timeout reached (30 seconds)');
+
+                // Calculate total calling duration
+                const timeoutReachedTime = Date.now();
+                const totalCallingDuration = callingStateStartTime ? timeoutReachedTime - callingStateStartTime : 0;
+                console.log('⏰ [PRODUCTION] Total calling duration before timeout:', totalCallingDuration, 'ms');
+
+                // Stop sound first
+                stopCallingSound().then(() => {
+                    console.log('🔇 [PRODUCTION] Calling sound stopped successfully');
+                }).catch((error) => {
+                    console.error('❌ [PRODUCTION] Error stopping calling sound:', error);
+                });
+
+                // Clear the timeout ID
+                const timeoutId = callingTimeoutId;
+                callingTimeoutId = undefined;
+                // Then update state and leave
+                console.log('🚪 Leaving conference due to timeout');
+                store.dispatch(hangup());
+            }, CALLING_TIMEOUT_DURATION) as unknown as number;
+
+            console.log('⏱️ Calling timeout scheduled for 30 seconds');
+        } catch (error) {
+            console.error('❌ Error in CALLING_STARTED:', error);
+            // Ensure we clean up on error
+            stopCallingSound();
+            if (callingTimeoutId) {
+                clearTimeout(callingTimeoutId);
+                callingTimeoutId = undefined;
+            }
+        }
+        break;
+    }
+
+    case CALLING_STOPPED: {
+        try {
+            console.log('🛑 [PRODUCTION] CALLING_STOPPED action received');
+
+            // Calculate calling duration if we have a start time
+            const stoppedTime = Date.now();
+            const callingDuration = callingStateStartTime ? stoppedTime - callingStateStartTime : 0;
+
+            console.log('🛑 [PRODUCTION] Calling session ended');
+            console.log('🛑 [PRODUCTION] Total calling duration:', callingDuration, 'ms');
+            console.log('🛑 [PRODUCTION] Stop time:', new Date(stoppedTime).toLocaleTimeString());
+
+            // Clear any pending timeouts first
+            if (callingTimeoutId) {
+                clearTimeout(callingTimeoutId);
+                callingTimeoutId = undefined;
+                console.log('🧹 [PRODUCTION] Cleared calling timeout');
+            }
+
+            // Stop the calling sound immediately
+            stopCallingSound()
+                .then(() => {
+                    console.log('🔇 [PRODUCTION] Calling sound stopped successfully');
+                })
+                .catch((error) => {
+                    console.error('❌ [PRODUCTION] Error stopping calling sound:', error);
+                });
+            
+            const state = store.getState();
+            const { calling } = state['features/base/conference'];
+            
+            // If we're still in a calling state when stopped, it means the call timed out
+            if (calling) {
+                console.log('⏱️ Calling state timed out - leaving conference');
+                store.dispatch(disconnect(true));
+            } else {
+                console.log('✅ Call answered or manually stopped');
+            }
+        } catch (error) {
+            console.error('❌ Error in CALLING_STOPPED:', error);
+            // Ensure we clean up even if there's an error
+            stopCallingSound();
+            if (callingTimeoutId) {
+                clearTimeout(callingTimeoutId);
+                callingTimeoutId = undefined;
+            }
+        }
+        break;
+    }
+
+    case CONFERENCE_LEFT: {
+        try {
+            console.log('🚪 [PRODUCTION] Conference left - cleaning up calling state');
+
+            // Clear calling state when leaving conference
+            const state = store.getState();
+            const { calling } = state['features/base/conference'];
+
+            console.log('🚪 [PRODUCTION] Conference left, calling state was:', calling);
+
+            if (calling) {
+                console.log('🚪 [PRODUCTION] Conference left while in calling state - stopping calling');
+                store.dispatch(callingStopped());
+            }
+
+            // Always clean up resources when leaving conference
+            console.log('🧹 [PRODUCTION] Force cleanup on conference leave');
+            forceCleanupCallingSound();
+
+            // Reset state variables
+            callingStateStartTime = undefined;
+
+            if (callingTimeoutId) {
+                clearTimeout(callingTimeoutId);
+                callingTimeoutId = undefined;
+                console.log('🧹 [PRODUCTION] Cleared timeout on conference leave');
+            }
+
+            console.log('✅ [PRODUCTION] Conference leave cleanup completed');
+
+        } catch (error) {
+            console.error('❌ [PRODUCTION] Error in CONFERENCE_LEFT:', error);
+            // Emergency cleanup
+            forceCleanupCallingSound();
+            callingStateStartTime = undefined;
+            if (callingTimeoutId) {
+                clearTimeout(callingTimeoutId);
+                callingTimeoutId = undefined;
+            }
+        }
+        break;
+    }
+
+    return result;
+});

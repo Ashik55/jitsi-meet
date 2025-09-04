@@ -44,11 +44,26 @@ function _playSound({ getState }: IStore, soundId: string) {
 
     if (sound) {
         if (sound.audioElement) {
+            console.log(`🔊 Playing sound: ${soundId}`);
             sound.audioElement.play();
         } else {
+            console.log(`🔊 PLAY_SOUND: sound not loaded yet for id: ${soundId}, retrying in 500ms...`);
             logger.warn(`PLAY_SOUND: sound not loaded yet for id: ${soundId}`);
+            
+            // Retry after 500ms if the sound is not loaded yet
+            setTimeout(() => {
+                const updatedSounds = getState()['features/base/sounds'];
+                const updatedSound = updatedSounds.get(soundId);
+                if (updatedSound && updatedSound.audioElement) {
+                    console.log(`🔊 Retry successful: Playing sound: ${soundId}`);
+                    updatedSound.audioElement.play();
+                } else {
+                    console.log(`🔊 Retry failed: sound still not loaded for id: ${soundId}`);
+                }
+            }, 500);
         }
     } else {
+        console.log(`🔊 PLAY_SOUND: no sound found for id: ${soundId}`);
         logger.warn(`PLAY_SOUND: no sound found for id: ${soundId}`);
     }
 }

@@ -3,6 +3,7 @@ import { AnyAction } from 'redux';
 import { IStore } from '../app/types';
 import { APP_WILL_MOUNT, APP_WILL_UNMOUNT } from '../base/app/actionTypes';
 import { CONFERENCE_JOINED } from '../base/conference/actionTypes';
+import { getSoundFileSrc } from '../base/media/functions';
 import {
     PARTICIPANT_JOINED,
     PARTICIPANT_LEFT,
@@ -94,9 +95,10 @@ MiddlewareRegistry.register(store => next => action => {
 
     switch (action.type) {
     case APP_WILL_MOUNT:
-        for (const [ soundId, sound ] of sounds.entries()) {
-            dispatch(registerSound(soundId, sound.file, sound.options));
+        for (const [ soundName, soundFile ] of sounds) {
+            dispatch(registerSound(soundName, getSoundFileSrc(soundFile.file, 'en'), soundFile.options || {}));
         }
+
         break;
 
     case APP_WILL_UNMOUNT:
@@ -106,6 +108,11 @@ MiddlewareRegistry.register(store => next => action => {
         break;
 
     case CONFERENCE_JOINED:
+        // Re-register invite sounds when joining a conference
+        // (in case they were cleared during previous conference cleanup)
+        for (const [ soundName, soundFile ] of sounds) {
+            dispatch(registerSound(soundName, getSoundFileSrc(soundFile.file, 'en'), soundFile.options || {}));
+        }
         _onConferenceJoined(store);
         break;
 

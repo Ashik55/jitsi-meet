@@ -1,4 +1,5 @@
 import {
+    CALLING_SOUND_ID,
     OUTGOING_CALL_EXPIRED_SOUND_ID,
     OUTGOING_CALL_REJECTED_SOUND_ID,
     OUTGOING_CALL_RINGING_SOUND_ID,
@@ -40,5 +41,14 @@ export const sounds = new Map([
      * The name of the sound file which will be played when outgoing call is
      * started.
      */
-    [ OUTGOING_CALL_START_SOUND_ID, { file: 'outgoingStart.mp3' } ]
+    [ OUTGOING_CALL_START_SOUND_ID, { file: 'outgoingStart.mp3' } ],
+
+    /**
+     * The name of the sound file which will be played when in calling state
+     * (waiting for participants to join).
+     */
+    [ CALLING_SOUND_ID, { 
+        file: 'calling_ringing.mp3',
+        options: { loop: true }
+    } ]
 ]);

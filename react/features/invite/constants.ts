@@ -39,6 +39,13 @@ export const OUTGOING_CALL_RINGING_SOUND_ID = 'OUTGOING_CALL_RINGING_SOUND';
 export const OUTGOING_CALL_START_SOUND_ID = 'OUTGOING_CALL_START_SOUND';
 
 /**
+ * The identifier of the sound to be played when in calling state (waiting for participants).
+ *
+ * @type {string}
+ */
+export const CALLING_SOUND_ID = 'CALLING_SOUND';
+
+/**
  * Regex for matching sip addresses.
  */
 // eslint-disable-next-line max-len

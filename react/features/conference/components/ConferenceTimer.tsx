@@ -2,9 +2,13 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { getConferenceTimestamp } from '../../base/conference/functions';
+import { getCallingState } from '../../base/conference/functions';
+import { getParticipantCount } from '../../base/participants/functions';
+import { isCallEndingDueToTimeout } from '../../base/conference/callingMiddleware';
 import { getLocalizedDurationFormatter } from '../../base/i18n/dateUtil';
 
-import { ConferenceTimerDisplay } from './index';
+// @ts-ignore - Platform-specific import handled by bundler
+import ConferenceTimerDisplay from './native/ConferenceTimerDisplay';
 
 /**
  * The type of the React {@code Component} props of {@link ConferenceTimer}.
@@ -31,9 +35,15 @@ export interface IDisplayProps {
 }
 
 const ConferenceTimer = ({ textStyle }: IProps) => {
-    const startTimestamp = useSelector(getConferenceTimestamp);
+    const conferenceTimestamp = useSelector(getConferenceTimestamp);
+    const isInCallingState = useSelector(getCallingState);
+    const participantCount = useSelector(getParticipantCount);
     const [ timerValue, setTimerValue ] = useState(getLocalizedDurationFormatter(0));
+    const [ timerStartTime, setTimerStartTime ] = useState<number | null>(null);
     const interval = useRef<number>();
+    const previousCallingState = useRef(isInCallingState);
+    const previousParticipantCount = useRef(participantCount);
+    
 
     /**
      * Sets the current state values that will be used to render the timer.
@@ -65,14 +75,17 @@ const ConferenceTimer = ({ textStyle }: IProps) => {
      * @returns {void}
      */
     const startTimer = useCallback(() => {
-        if (!interval.current && startTimestamp) {
-            setStateFromUTC(startTimestamp, new Date().getTime());
+        if (!interval.current && timerStartTime) {
+            // Set initial timer value immediately
+            const currentTime = new Date().getTime();
+            setStateFromUTC(timerStartTime, currentTime);
 
-            interval.current = window.setInterval(() => {
-                setStateFromUTC(startTimestamp, new Date().getTime());
+            interval.current = setInterval(() => {
+                const now = new Date().getTime();
+                setStateFromUTC(timerStartTime, now);
             }, 1000);
         }
-    }, [ startTimestamp, interval ]);
+    }, [ timerStartTime, setStateFromUTC ]);
 
     /**
      * Stop conference timer.
@@ -86,22 +99,81 @@ const ConferenceTimer = ({ textStyle }: IProps) => {
         }
 
         setTimerValue(getLocalizedDurationFormatter(0));
-    }, [ interval ]);
+    }, []);
 
+    // Handle calling state and participant changes
     useEffect(() => {
-        startTimer();
-
-        return () => stopTimer();
-    }, [ startTimestamp ]);
+        const callingStateChanged = previousCallingState.current !== isInCallingState;
+        const participantCountChanged = previousParticipantCount.current !== participantCount;
 
 
-    if (!startTimestamp) {
-        return null;
+        if (callingStateChanged) {
+            if (isInCallingState) {
+                // Calling state started - stop the timer and reset
+                stopTimer();
+                setTimerStartTime(null);
+            } else {
+                // Start timer when calling state ends (someone joined) and we don't have a timer yet
+                // BUT NOT if call is ending due to timeout (prevents brief timer flash before hangup)
+                if (!isCallEndingDueToTimeout()) {
+                    const now = new Date().getTime();
+                    setTimerStartTime(now);
+                }
+            }
+        }
+        
+        // Also handle direct participant count increase when not in calling state (fallback)
+        // BUT NOT if call is ending due to timeout (prevents brief timer flash before hangup)
+        if (participantCountChanged && !isInCallingState && timerStartTime === null && participantCount > 1 && !isCallEndingDueToTimeout()) {
+            const now = new Date().getTime();
+            setTimerStartTime(now);
+        }
+
+        // Emergency fallback: If we have participants but no calling state and no timer, force start
+        // BUT NOT if call is ending due to timeout (prevents brief timer flash before hangup)
+        if (!isInCallingState && participantCount > 1 && timerStartTime === null && !interval.current && !isCallEndingDueToTimeout()) {
+            const now = new Date().getTime();
+            setTimerStartTime(now);
+        }
+
+        // Update refs after processing
+        previousCallingState.current = isInCallingState;
+        previousParticipantCount.current = participantCount;
+    }, [participantCount, isInCallingState, timerStartTime]);
+
+    // Start/stop timer based on whether we have a start time and calling state
+    useEffect(() => {
+
+        if (!isInCallingState && timerStartTime && !interval.current) {
+            startTimer();
+        } else if (isInCallingState && interval.current) {
+            stopTimer();
+        }
+
+        return () => {
+            if (interval.current) {
+                clearInterval(interval.current);
+                interval.current = undefined;
+            }
+        };
+    }, [timerStartTime, isInCallingState]);
+
+
+    // If we're in calling state, show "Calling..." instead of timer
+    if (isInCallingState) {
+        return (<ConferenceTimerDisplay
+            textStyle = { textStyle }
+            timerValue = "Calling..." />);
     }
 
-    return (<ConferenceTimerDisplay
-        textStyle = { textStyle }
-        timerValue = { timerValue } />);
+    // Show timer if we have a timer start time
+    if (timerStartTime !== null) {
+        return (<ConferenceTimerDisplay
+            textStyle = { textStyle }
+            timerValue = { timerValue } />);
+    }
+
+    return null;
 };
 
 export default ConferenceTimer;

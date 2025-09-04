@@ -362,6 +362,26 @@ export function getRemoteParticipantCountWithFake(stateful: IStateful) {
 }
 
 /**
+ * Returns a count of the known real remote participants in the passed in redux state,
+ * excluding fake participants like screen shares and bots.
+ *
+ * @param {(Function|Object)} stateful - The (whole) redux state, or redux's
+ * {@code getState} function to be used to retrieve the state
+ * features/base/participants.
+ * @returns {number}
+ */
+export function getRemoteParticipantCount(stateful: IStateful) {
+    const state = toState(stateful);
+    const {
+        remote,
+        fakeParticipants,
+        sortedRemoteVirtualScreenshareParticipants
+    } = state['features/base/participants'];
+
+    return remote.size - fakeParticipants.size - sortedRemoteVirtualScreenshareParticipants.size;
+}
+
+/**
  * Returns the muted state of the given media source for a given participant.
  *
  * @param {(Function|Object)} stateful - The (whole) redux state, or redux's.

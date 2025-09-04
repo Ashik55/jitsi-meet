@@ -38,8 +38,13 @@ import {
 import { getLocalTracks } from '../tracks/functions';
 import { getBackendSafeRoomName } from '../util/uri';
 
+// Forward declaration for platform-specific function
+declare function setupVisitorStartupMedia(media: Array<MediaType>): any;
+
 import {
     AUTH_STATUS_CHANGED,
+    CALLING_STARTED,
+    CALLING_STOPPED,
     CONFERENCE_FAILED,
     CONFERENCE_JOINED,
     CONFERENCE_JOIN_IN_PROGRESS,
@@ -73,7 +78,6 @@ import {
     SET_START_REACTIONS_MUTED,
     UPDATE_CONFERENCE_METADATA
 } from './actionTypes';
-import { setupVisitorStartupMedia } from './actions';
 import {
     AVATAR_URL_COMMAND,
     EMAIL_COMMAND,
@@ -516,6 +520,34 @@ export function conferenceUniqueIdSet(conference: IJitsiConference) {
     return {
         type: CONFERENCE_UNIQUE_ID_SET,
         conference
+    };
+}
+
+/**
+ * Signals that the calling state has started.
+ * This should be dispatched when a user joins a conference but no remote participants are present.
+ *
+ * @returns {{
+ *     type: CALLING_STARTED
+ * }}
+ */
+export function callingStarted() {
+    return {
+        type: CALLING_STARTED
+    };
+}
+
+/**
+ * Signals that the calling state has stopped.
+ * This should be dispatched when remote participants join or the calling timeout expires.
+ *
+ * @returns {{
+ *     type: CALLING_STOPPED
+ * }}
+ */
+export function callingStopped() {
+    return {
+        type: CALLING_STOPPED
     };
 }
 

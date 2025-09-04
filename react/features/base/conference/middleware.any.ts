@@ -19,6 +19,9 @@ import { isVpaasMeeting } from '../../jaas/functions';
 import { showErrorNotification, showNotification } from '../../notifications/actions';
 import { NOTIFICATION_TIMEOUT_TYPE } from '../../notifications/constants';
 import { INotificationProps } from '../../notifications/types';
+
+// Import calling middleware to register it
+import './callingMiddleware';
 import { hasDisplayName } from '../../prejoin/utils';
 import { stopLocalVideoRecording } from '../../recording/actions.any';
 import LocalRecordingManager from '../../recording/components/Recording/LocalRecordingManager';

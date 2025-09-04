@@ -379,3 +379,23 @@ export const SET_ASSUMED_BANDWIDTH_BPS = 'SET_ASSUMED_BANDWIDTH_BPS';
  * }
  */
 export const UPDATE_CONFERENCE_METADATA = 'UPDATE_CONFERENCE_METADATA';
+
+/**
+ * The type of (redux) action which signals that the calling state has started.
+ * This is used when a user joins a conference but no remote participants are present.
+ *
+ * {
+ *     type: CALLING_STARTED
+ * }
+ */
+export const CALLING_STARTED = 'CALLING_STARTED';
+
+/**
+ * The type of (redux) action which signals that the calling state has stopped.
+ * This is used when remote participants join or the calling timeout expires.
+ *
+ * {
+ *     type: CALLING_STOPPED
+ * }
+ */
+export const CALLING_STOPPED = 'CALLING_STOPPED';

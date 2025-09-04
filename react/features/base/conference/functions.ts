@@ -355,6 +355,20 @@ export function getConferenceTimestamp(stateful: IStateful) {
 }
 
 /**
+ * Returns the calling state indicating if the user is waiting for others to join.
+ *
+ * @param {IStateful} stateful - Reference that can be resolved to Redux
+ * state with the {@code toState} function.
+ * @returns {boolean}
+ */
+export function getCallingState(stateful: IStateful) {
+    const state = toState(stateful);
+    const { calling } = getConferenceState(state);
+
+    return calling;
+}
+
+/**
  * Returns the current {@code JitsiConference} which is joining or joined and is
  * not leaving. Please note the contrast with merely reading the
  * {@code conference} state of the feature base/conference which is not joining
