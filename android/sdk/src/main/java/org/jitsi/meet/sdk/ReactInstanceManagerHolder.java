@@ -65,7 +65,7 @@ class ReactInstanceManagerHolder {
                 new AudioModeModule(reactContext),
                 new DropboxModule(reactContext),
                 new ExternalAPIModule(reactContext),
-                new FakeOverlayModule(reactContext),
+                // new FakeOverlayModule(reactContext), // COMMENTED OUT: Testing instant performance without fake overlay
                 new JavaScriptSandboxModule(reactContext),
                 new LocaleDetector(reactContext),
                 new LogBridgeModule(reactContext),

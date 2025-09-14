@@ -47,8 +47,9 @@ public class JitsiMeetView extends FrameLayout {
 
     /**
      * Native fake conference overlay view - simulates conference over React Native loading.
+     * COMMENTED OUT: Testing instant performance without overlay
      */
-    private FakeConferenceOverlayView fakeOverlay;
+    // private FakeConferenceOverlayView fakeOverlay;
     
     /**
      * Timestamp when React Native started loading.
@@ -133,10 +134,11 @@ public class JitsiMeetView extends FrameLayout {
             reactRootView = null;
         }
         
-        if (fakeOverlay != null) {
-            removeView(fakeOverlay);
-            fakeOverlay = null;
-        }
+        // COMMENTED OUT: Testing instant performance without overlay
+        // if (fakeOverlay != null) {
+        //     removeView(fakeOverlay);
+        //     fakeOverlay = null;
+        // }
     }
 
     /**
@@ -187,9 +189,10 @@ public class JitsiMeetView extends FrameLayout {
         } catch (Exception e) {
             JitsiMeetLogger.e("JitsiMeetView", "CRASH: Error in join()", e);
             
-            if (fakeOverlay != null) {
-                fakeOverlay.showError("Failed to join conference: " + e.getMessage());
-            }
+            // COMMENTED OUT: Testing instant performance without overlay
+            // if (fakeOverlay != null) {
+            //     fakeOverlay.showError("Failed to join conference: " + e.getMessage());
+            // }
             throw e;
         }
     }
@@ -246,23 +249,25 @@ public class JitsiMeetView extends FrameLayout {
                 addView(reactRootView);
                 JitsiMeetLogger.i("JitsiMeetView", "ReactRootView added to container");
                 
-                // Ensure fake overlay stays on top when React Native loads
-                if (fakeOverlay != null) {
-                    bringChildToFront(fakeOverlay);
-                    JitsiMeetLogger.i("JitsiMeetView", "Fake overlay brought to front");
-                } else {
-                    JitsiMeetLogger.w("JitsiMeetView", "Fake overlay is null when React Native created");
-                }
+                // COMMENTED OUT: Testing instant performance without overlay
+                // // Ensure fake overlay stays on top when React Native loads
+                // if (fakeOverlay != null) {
+                //     bringChildToFront(fakeOverlay);
+                //     JitsiMeetLogger.i("JitsiMeetView", "Fake overlay brought to front");
+                // } else {
+                //     JitsiMeetLogger.w("JitsiMeetView", "Fake overlay is null when React Native created");
+                // }
                 
                 JitsiMeetLogger.i("JitsiMeetView", "=== ReactRootView creation completed ===");
                 
             } catch (Exception e) {
                 JitsiMeetLogger.e("JitsiMeetView", "CRASH: Error creating ReactRootView", e);
                 
-                // Try to show error in fake overlay
-                if (fakeOverlay != null) {
-                    fakeOverlay.showError("React Native failed to load: " + e.getMessage());
-                }
+                // COMMENTED OUT: Testing instant performance without overlay
+                // // Try to show error in fake overlay
+                // if (fakeOverlay != null) {
+                //     fakeOverlay.showError("React Native failed to load: " + e.getMessage());
+                // }
                 throw e; // Re-throw to maintain original behavior
             }
         } else {
@@ -300,81 +305,83 @@ public class JitsiMeetView extends FrameLayout {
             throw e;
         }
         
-        // Create fake conference overlay to show on top of React Native loading
-        post(() -> {
-            try {
-                JitsiMeetLogger.i("JitsiMeetView", "Creating fake overlay...");
-                fakeOverlay = new FakeConferenceOverlayView(context);
-                JitsiMeetLogger.i("JitsiMeetView", "Fake overlay created successfully");
-                
-                addView(fakeOverlay);
-                JitsiMeetLogger.i("JitsiMeetView", "Fake overlay added to view");
-                
-                // Show fake overlay immediately to cover "Connecting..." message
-                fakeOverlay.show();
-                JitsiMeetLogger.i("JitsiMeetView", "Fake overlay shown");
-                
-                fakeOverlay.bringToFront();
-                JitsiMeetLogger.i("JitsiMeetView", "Fake overlay brought to front");
-                
-                // Start checking for React Native readiness
-                startReactNativeReadinessCheck();
-                JitsiMeetLogger.i("JitsiMeetView", "React Native readiness check started");
-                
-            } catch (Exception e) {
-                JitsiMeetLogger.e("JitsiMeetView", "CRASH: Error in fake overlay setup", e);
-                throw e;
-            }
-        });
+        // COMMENTED OUT: Testing instant performance without overlay
+        // // Create fake conference overlay to show on top of React Native loading
+        // post(() -> {
+        //     try {
+        //         JitsiMeetLogger.i("JitsiMeetView", "Creating fake overlay...");
+        //         fakeOverlay = new FakeConferenceOverlayView(context);
+        //         JitsiMeetLogger.i("JitsiMeetView", "Fake overlay created successfully");
+        //         
+        //         addView(fakeOverlay);
+        //         JitsiMeetLogger.i("JitsiMeetView", "Fake overlay added to view");
+        //         
+        //         // Show fake overlay immediately to cover "Connecting..." message
+        //         fakeOverlay.show();
+        //         JitsiMeetLogger.i("JitsiMeetView", "Fake overlay shown");
+        //         
+        //         fakeOverlay.bringToFront();
+        //         JitsiMeetLogger.i("JitsiMeetView", "Fake overlay brought to front");
+        //         
+        //         // Start checking for React Native readiness
+        //         startReactNativeReadinessCheck();
+        //         JitsiMeetLogger.i("JitsiMeetView", "React Native readiness check started");
+        //         
+        //     } catch (Exception e) {
+        //         JitsiMeetLogger.e("JitsiMeetView", "CRASH: Error in fake overlay setup", e);
+        //         throw e;
+        //     }
+        // });
         
         JitsiMeetLogger.i("JitsiMeetView", "=== Initialize completed ===");
     }
     
     /**
      * Monitors React Native loading and hides fake overlay when ready.
+     * COMMENTED OUT: Testing instant performance without overlay
      */
-    private void startReactNativeReadinessCheck() {
-        JitsiMeetLogger.i("JitsiMeetView", "=== Starting React Native readiness check ===");
-        Handler handler = new Handler(Looper.getMainLooper());
-        
-        // Check every 500ms if React Native is ready
-        Runnable readinessChecker = new Runnable() {
-            @Override
-            public void run() {
-                JitsiMeetLogger.i("JitsiMeetView", "Checking React Native readiness...");
-                
-                try {
-                    if (isReactNativeReady()) {
-                        JitsiMeetLogger.i("JitsiMeetView", "=== React Native is ready! Hiding overlay ===");
-                        // React Native is ready, hide the fake overlay
-                        if (fakeOverlay != null && fakeOverlay.isShowing()) {
-                            // Add a small delay to ensure smooth transition
-                            handler.postDelayed(() -> {
-                                if (fakeOverlay != null) {
-                                    JitsiMeetLogger.i("JitsiMeetView", "Hiding fake overlay now");
-                                    fakeOverlay.hide();
-                                }
-                            }, 300);
-                        } else {
-                            JitsiMeetLogger.w("JitsiMeetView", "React Native ready but overlay is null or not showing");
-                        }
-                    } else {
-                        JitsiMeetLogger.i("JitsiMeetView", "React Native not ready yet, checking again in 500ms");
-                        // Not ready yet, check again in 500ms
-                        handler.postDelayed(this, 500);
-                    }
-                } catch (Exception e) {
-                    JitsiMeetLogger.e("JitsiMeetView", "Error in readiness check", e);
-                    // Continue checking despite error
-                    handler.postDelayed(this, 500);
-                }
-            }
-        };
-        
-        // Start checking after 2 seconds (give React Native time to start)
-        JitsiMeetLogger.i("JitsiMeetView", "Will start checking in 2 seconds...");
-        handler.postDelayed(readinessChecker, 2000);
-    }
+    // private void startReactNativeReadinessCheck() {
+    //     JitsiMeetLogger.i("JitsiMeetView", "=== Starting React Native readiness check ===");
+    //     Handler handler = new Handler(Looper.getMainLooper());
+    //     
+    //     // Check every 500ms if React Native is ready
+    //     Runnable readinessChecker = new Runnable() {
+    //         @Override
+    //         public void run() {
+    //             JitsiMeetLogger.i("JitsiMeetView", "Checking React Native readiness...");
+    //             
+    //             try {
+    //                 if (isReactNativeReady()) {
+    //                     JitsiMeetLogger.i("JitsiMeetView", "=== React Native is ready! Hiding overlay ===");
+    //                     // React Native is ready, hide the fake overlay
+    //                     if (fakeOverlay != null && fakeOverlay.isShowing()) {
+    //                         // Add a small delay to ensure smooth transition
+    //                         handler.postDelayed(() -> {
+    //                             if (fakeOverlay != null) {
+    //                                 JitsiMeetLogger.i("JitsiMeetView", "Hiding fake overlay now");
+    //                                 fakeOverlay.hide();
+    //                             }
+    //                         }, 300);
+    //                     } else {
+    //                         JitsiMeetLogger.w("JitsiMeetView", "React Native ready but overlay is null or not showing");
+    //                     }
+    //                 } else {
+    //                     JitsiMeetLogger.i("JitsiMeetView", "React Native not ready yet, checking again in 500ms");
+    //                     // Not ready yet, check again in 500ms
+    //                     handler.postDelayed(this, 500);
+    //                 }
+    //             } catch (Exception e) {
+    //                 JitsiMeetLogger.e("JitsiMeetView", "Error in readiness check", e);
+    //                 // Continue checking despite error
+    //                 handler.postDelayed(this, 500);
+    //             }
+    //         }
+    //     };
+    //     
+    //     // Start checking after 2 seconds (give React Native time to start)
+    //     JitsiMeetLogger.i("JitsiMeetView", "Will start checking in 2 seconds...");
+    //     handler.postDelayed(readinessChecker, 2000);
+    // }
     
     /**
      * Checks if React Native is ready and conference has loaded.
@@ -414,12 +421,13 @@ public class JitsiMeetView extends FrameLayout {
     
     /**
      * Forces hiding the fake overlay (useful for manual control or fallback).
+     * COMMENTED OUT: Testing instant performance without overlay
      */
-    public void forceHideFakeOverlay() {
-        if (fakeOverlay != null) {
-            fakeOverlay.hide();
-        }
-    }
+    // public void forceHideFakeOverlay() {
+    //     if (fakeOverlay != null) {
+    //         fakeOverlay.hide();
+    //     }
+    // }
 
     /**
      * Helper method to set the React Native props.
@@ -458,10 +466,11 @@ public class JitsiMeetView extends FrameLayout {
         } catch (Exception e) {
             JitsiMeetLogger.e("JitsiMeetView", "CRASH: Error in setProps", e);
             
-            // Show error in fake overlay if possible
-            if (fakeOverlay != null) {
-                fakeOverlay.showError("Failed to start conference: " + e.getMessage());
-            }
+            // COMMENTED OUT: Testing instant performance without overlay
+            // // Show error in fake overlay if possible
+            // if (fakeOverlay != null) {
+            //     fakeOverlay.showError("Failed to start conference: " + e.getMessage());
+            // }
             throw e;
         }
     }
@@ -474,26 +483,29 @@ public class JitsiMeetView extends FrameLayout {
 
     /**
      * Shows the fake conference overlay.
+     * COMMENTED OUT: Testing instant performance without overlay
      */
-    public void showFakeOverlay() {
-        if (fakeOverlay != null) {
-            fakeOverlay.show();
-        }
-    }
+    // public void showFakeOverlay() {
+    //     if (fakeOverlay != null) {
+    //         fakeOverlay.show();
+    //     }
+    // }
 
     /**
      * Hides the fake conference overlay.
+     * COMMENTED OUT: Testing instant performance without overlay
      */
-    public void hideFakeOverlay() {
-        if (fakeOverlay != null) {
-            fakeOverlay.hide();
-        }
-    }
+    // public void hideFakeOverlay() {
+    //     if (fakeOverlay != null) {
+    //         fakeOverlay.hide();
+    //     }
+    // }
 
     /**
      * Checks if the fake conference overlay is currently showing.
+     * COMMENTED OUT: Testing instant performance without overlay
      */
-    public boolean isFakeOverlayShowing() {
-        return fakeOverlay != null && fakeOverlay.isShowing();
-    }
+    // public boolean isFakeOverlayShowing() {
+    //     return fakeOverlay != null && fakeOverlay.isShowing();
+    // }
 }

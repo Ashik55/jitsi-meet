@@ -19,7 +19,7 @@ import { isDisplayNameVisible } from '../../../base/config/functions.native';
 import { FULLSCREEN_ENABLED } from '../../../base/flags/constants';
 import { getFeatureFlag } from '../../../base/flags/functions';
 import Container from '../../../base/react/components/native/Container';
-import LoadingIndicator from '../../../base/react/components/native/LoadingIndicator';
+// LoadingIndicator removed - instant performance, no loading needed
 import TintedView from '../../../base/react/components/native/TintedView';
 import {
     ASPECT_RATIO_NARROW,
@@ -84,10 +84,8 @@ interface IProps extends AbstractProps {
     _calendarEnabled: boolean;
 
     /**
-     * The indicator which determines that we are still connecting to the
-     * conference which includes establishing the XMPP connection and then
-     * joining the room. If truthy, then an activity/loading indicator will be
-     * rendered.
+     * Connection state - with instant performance, this is always false
+     * as connections are pre-established during app startup
      */
     _connecting: boolean;
 
@@ -409,15 +407,7 @@ class Conference extends AbstractConference<IProps, State> {
                     <CalleeInfoContainer />
                 }
 
-                {/*
-                  * The activity/loading indicator goes above everything, except
-                  * the toolbox/toolbars and the dialogs.
-                  */
-                    _connecting
-                        && <TintedView>
-                            <LoadingIndicator />
-                        </TintedView>
-                }
+                {/* Loading indicators removed - instant performance with pre-established connections */}
 
                 <View
                     pointerEvents = 'box-none'
@@ -501,12 +491,7 @@ class Conference extends AbstractConference<IProps, State> {
             <>
                 <LargeVideo onClick = { this._onClick } />
 
-                {
-                    _connecting
-                        && <TintedView>
-                            <LoadingIndicator />
-                        </TintedView>
-                }
+                {/* Loading indicators removed - instant performance with pre-established connections */}
             </>
         );
     }

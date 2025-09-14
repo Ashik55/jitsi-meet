@@ -22,11 +22,7 @@ export const isConnecting = (state: IReduxState) => {
     // which the app does not appear to be doing anything according to the redux
     // state. In order to not toggle the _connecting props during the window of
     // time in question, define _connecting as follows:
-    // - the XMPP connection is connecting, or
-    // - the XMPP connection is connected and the conference is joining, or
-    // - the XMPP connection is connected and we have no conference yet, nor we
-    //   are leaving one.
-    return Boolean(
-        connecting || (connection && (!membersOnly && (joining || (!conference && !leaving))))
-    );
+    // With instant performance and pre-established connections, 
+    // we never show connecting states - instant conference launch
+    return false;
 };

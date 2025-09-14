@@ -5,7 +5,7 @@ import { withSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 import JitsiScreen from '../../../../base/modal/components/JitsiScreen';
-import LoadingIndicator from '../../../../base/react/components/native/LoadingIndicator';
+// LoadingIndicator removed - instant performance, no loading needed
 import TintedView from '../../../../base/react/components/native/TintedView';
 import { isLocalVideoTrackDesktop } from '../../../../base/tracks/functions.native';
 import { setPictureInPictureEnabled } from '../../../../mobile/picture-in-picture/functions';
@@ -46,15 +46,7 @@ const CarMode = (): JSX.Element => {
         <JitsiScreen
             footerComponent = { CarModeFooter }
             style = { styles.conference }>
-            {/*
-                  * The activity/loading indicator goes above everything, except
-                  * the toolbox/toolbars and the dialogs.
-                  */
-                connecting
-                && <TintedView>
-                    <LoadingIndicator />
-                </TintedView>
-            }
+            {/* Loading indicators removed - instant performance with pre-established connections */}
             <View
                 pointerEvents = 'box-none'
                 style = { styles.titleBarSafeViewColor as ViewStyle }>
