@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
+import { IReduxState } from '../../app/types';
 import { getConferenceTimestamp } from '../../base/conference/functions';
 import { getCallingState } from '../../base/conference/functions';
 import { getParticipantCount } from '../../base/participants/functions';
@@ -38,6 +39,17 @@ const ConferenceTimer = ({ textStyle }: IProps) => {
     const conferenceTimestamp = useSelector(getConferenceTimestamp);
     const isInCallingState = useSelector(getCallingState);
     const participantCount = useSelector(getParticipantCount);
+    
+    // Check if we're in connecting state (before calling)
+    const connectionState = useSelector((state: IReduxState) => state['features/base/connection']);
+    const conferenceState = useSelector((state: IReduxState) => state['features/base/conference']);
+    
+    // Show "Connecting..." when:
+    // 1. Connection is being established (connecting is true)
+    // 2. Or conference is joining but not yet in calling state
+    // 3. But not when already in calling state
+    const isConnecting = (Boolean(connectionState.connecting) || Boolean(conferenceState.joining)) && !isInCallingState && !conferenceState.conference;
+    
     const [ timerValue, setTimerValue ] = useState(getLocalizedDurationFormatter(0));
     const [ timerStartTime, setTimerStartTime ] = useState<number | null>(null);
     const interval = useRef<number>();
@@ -158,6 +170,13 @@ const ConferenceTimer = ({ textStyle }: IProps) => {
         };
     }, [timerStartTime, isInCallingState]);
 
+
+    // If we're connecting (before calling), show "Connecting..."
+    if (isConnecting) {
+        return (<ConferenceTimerDisplay
+            textStyle = { textStyle }
+            timerValue = "Connecting..." />);
+    }
 
     // If we're in calling state, show "Calling..." instead of timer
     if (isInCallingState) {
