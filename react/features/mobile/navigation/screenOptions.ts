@@ -190,7 +190,15 @@ export const settingsScreenOptions = presentationScreenOptions;
  */
 export const connectingScreenOptions = {
     gestureEnabled: false,
-    headerShown: false
+    headerShown: false,
+    // Disable all default navigation animations for seamless transition
+    animationEnabled: false,
+    cardStyleInterpolator: () => ({
+        cardStyle: {
+            opacity: 1,
+            transform: []
+        }
+    })
 };
 
 /**

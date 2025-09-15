@@ -45,20 +45,45 @@ export const navigationStyles = {
     },
 
     connectingScreenText: {
-        color: TEXT_COLOR
+        color: TEXT_COLOR,
+        marginTop: BaseTheme.spacing[3],
+        textAlign: 'center' as 'center'
     },
 
-    // New overlay style for connecting state over conference UI
+    // Conference container styles
+    conferenceContainer: {
+        alignSelf: 'stretch',
+        backgroundColor: BaseTheme.palette.uiBackground,
+        flex: 1
+    },
+
+    // Toolbox and filmstrip container
+    toolboxAndFilmstripContainer: {
+        bottom: 0,
+        flexDirection: 'column' as 'column',
+        justifyContent: 'flex-end' as 'flex-end',
+        left: 0,
+        position: 'absolute' as 'absolute',
+        right: 0,
+        top: 0
+    },
+
+    // Connecting overlay styles with proper types
     connectingOverlay: {
-        position: 'absolute',
+        position: 'absolute' as 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        alignItems: 'center' as 'center',
+        justifyContent: 'center' as 'center',
         zIndex: 1000
+    },
+
+    connectingOverlayContent: {
+        alignItems: 'center' as 'center',
+        justifyContent: 'center' as 'center'
     },
 
     headerNavigationButton: {

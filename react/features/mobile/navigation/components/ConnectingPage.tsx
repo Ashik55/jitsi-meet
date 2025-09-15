@@ -1,37 +1,50 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView, Text, View, ViewStyle } from 'react-native';
+import { View, ViewStyle } from 'react-native';
 
-import JitsiScreen from '../../../base/modal/components/JitsiScreen';
-import LoadingIndicator from '../../../base/react/components/native/LoadingIndicator';
-// Import the main Conference component
-import Conference from '../../../conference/components/native/Conference';
+// Import the main Conference component and required parts
+import BrandingImageBackground from '../../../dynamic-branding/components/native/BrandingImageBackground';
+import Filmstrip from '../../../filmstrip/components/native/Filmstrip';
+import LargeVideo from '../../../large-video/components/LargeVideo.native';
+import Toolbox from '../../../toolbox/components/native/Toolbox';
+import Container from '../../../base/react/components/native/Container';
 
-import { TEXT_COLOR, navigationStyles } from './styles';
+import { navigationStyles } from './styles';
 
+interface IProps {
+    /**
+     * Navigation object provided by React Navigation.
+     */
+    navigation?: any;
+}
 
-const ConnectingPage = () => {
+const ConnectingPage = ({ navigation }: IProps) => {
     const { t } = useTranslation();
 
-    // Option 1: Use the full Conference UI directly
-    return <Conference />;
+    const handleLargeVideoClick = useCallback(() => {
+        // Handle click interactions - can be used to hide/show toolbox
+    }, []);
 
-    // Option 2: Use Conference UI with a connecting overlay (commented out)
-    // return (
-    //     <View style={{ flex: 1 }}>
-    //         <Conference />
-    //         <View style={navigationStyles.connectingOverlay}>
-    //             <SafeAreaView>
-    //                 <LoadingIndicator
-    //                     color={TEXT_COLOR}
-    //                     size='large' />
-    //                 <Text style={navigationStyles.connectingScreenText}>
-    //                     {t('connectingOverlay.joiningRoom')}
-    //                 </Text>
-    //             </SafeAreaView>
-    //         </View>
-    //     </View>
-    // );
+    return (
+        <View style={{ flex: 1 }}>
+            {/* Main Conference UI - Clean and Direct */}
+            <Container style={[navigationStyles.conferenceContainer]}>
+                <BrandingImageBackground />
+                
+                {/* Large Video Area */}
+                <LargeVideo onClick={handleLargeVideoClick} />
+                
+                {/* Bottom Toolbar Container */}
+                <View style={navigationStyles.toolboxAndFilmstripContainer as ViewStyle}>
+                    {/* Filmstrip (participant thumbnails) */}
+                    <Filmstrip />
+                    
+                    {/* Toolbox (Bottom Toolbar with controls) */}
+                    <Toolbox />
+                </View>
+            </Container>
+        </View>
+    );
 };
 
 export default ConnectingPage;
