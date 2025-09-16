@@ -30,6 +30,7 @@ import {
     SET_ASSUMED_BANDWIDTH_BPS,
     SET_FOLLOW_ME,
     SET_FOLLOW_ME_RECORDER,
+    SET_INTENTIONAL_LEAVE,
     SET_OBFUSCATED_ROOM,
     SET_PASSWORD,
     SET_PENDING_SUBJECT_CHANGE,
@@ -46,6 +47,7 @@ const DEFAULT_STATE = {
     conference: undefined,
     dataChannelOpen: undefined,
     e2eeSupported: undefined,
+    intentionalLeave: false,
     joining: undefined,
     leaving: undefined,
     locked: undefined,
@@ -170,6 +172,7 @@ export interface IConferenceState {
     error?: Error;
     followMeEnabled?: boolean;
     followMeRecorderEnabled?: boolean;
+    intentionalLeave?: boolean;
     joining?: IJitsiConference;
     leaving?: IJitsiConference;
     lobbyError?: boolean;
@@ -281,6 +284,9 @@ ReducerRegistry.register<IConferenceState>('features/base/conference',
 
         case SET_START_REACTIONS_MUTED:
             return set(state, 'startReactionsMuted', action.muted);
+
+        case SET_INTENTIONAL_LEAVE:
+            return set(state, 'intentionalLeave', action.intentionalLeave);
 
         case SET_LOCATION_URL:
             return set(state, 'room', undefined);
@@ -582,6 +588,7 @@ function _conferencePropertiesChanged(state: IConferenceState, { properties }: {
 function _conferenceWillJoin(state: IConferenceState, { conference }: { conference: IJitsiConference; }) {
     return assign(state, {
         error: undefined,
+        intentionalLeave: false,
         joining: conference
     });
 }

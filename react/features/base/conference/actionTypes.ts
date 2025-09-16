@@ -399,3 +399,14 @@ export const CALLING_STARTED = 'CALLING_STARTED';
  * }
  */
 export const CALLING_STOPPED = 'CALLING_STOPPED';
+
+/**
+ * The type of (redux) action which signals that the user is intentionally ending the call.
+ * This prevents showing the "call terminated" dialog when the user explicitly leaves.
+ *
+ * {
+ *     type: SET_INTENTIONAL_LEAVE,
+ *     intentionalLeave: boolean
+ * }
+ */
+export const SET_INTENTIONAL_LEAVE = 'SET_INTENTIONAL_LEAVE';

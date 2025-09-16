@@ -69,6 +69,7 @@ import {
     SET_ASSUMED_BANDWIDTH_BPS,
     SET_FOLLOW_ME,
     SET_FOLLOW_ME_RECORDER,
+    SET_INTENTIONAL_LEAVE,
     SET_OBFUSCATED_ROOM,
     SET_PASSWORD,
     SET_PASSWORD_FAILED,
@@ -1126,6 +1127,20 @@ export function setAssumedBandwidthBps(assumedBandwidthBps: number) {
     return {
         type: SET_ASSUMED_BANDWIDTH_BPS,
         assumedBandwidthBps
+    };
+}
+
+/**
+ * Action to mark that the user is intentionally leaving the call.
+ * This prevents showing the "call terminated" dialog when the user explicitly leaves.
+ *
+ * @param {boolean} intentionalLeave - Whether the user is intentionally leaving.
+ * @returns {Object}
+ */
+export function setIntentionalLeave(intentionalLeave: boolean) {
+    return {
+        type: SET_INTENTIONAL_LEAVE,
+        intentionalLeave
     };
 }
 

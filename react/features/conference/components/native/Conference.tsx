@@ -15,6 +15,7 @@ import { connect, useDispatch } from 'react-redux';
 import { appNavigate } from '../../../app/actions.native';
 import { IReduxState, IStore } from '../../../app/types';
 import { CONFERENCE_BLURRED, CONFERENCE_FOCUSED } from '../../../base/conference/actionTypes';
+import { setIntentionalLeave } from '../../../base/conference/actions.any';
 import { isDisplayNameVisible } from '../../../base/config/functions.native';
 import { FULLSCREEN_ENABLED } from '../../../base/flags/constants';
 import { getFeatureFlag } from '../../../base/flags/functions';
@@ -321,6 +322,7 @@ class Conference extends AbstractConference<IProps, State> {
         }
 
         p.catch(() => {
+            this.props.dispatch(setIntentionalLeave(true));
             this.props.dispatch(appNavigate(undefined));
         });
 

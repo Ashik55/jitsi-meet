@@ -4,7 +4,7 @@ import { JitsiConferenceErrors } from '../lib-jitsi-meet';
 import MiddlewareRegistry from '../redux/MiddlewareRegistry';
 
 import { CONFERENCE_FAILED } from './actionTypes';
-import { conferenceLeft } from './actions.native';
+import { conferenceLeft, setIntentionalLeave } from './actions.any';
 import { TRIGGER_READY_TO_CLOSE_REASONS } from './constants';
 
 import './middleware.any';
@@ -18,12 +18,22 @@ MiddlewareRegistry.register(store => next => action => {
         const { getState } = store;
         const state = getState();
         const { notifyOnConferenceDestruction = true } = state['features/base/config'];
+        const { intentionalLeave = false } = state['features/base/conference'];
 
         if (error?.name !== JitsiConferenceErrors.CONFERENCE_DESTROYED) {
             break;
         }
 
+        // Don't show termination dialog if user intentionally left the call
+        if (intentionalLeave) {
+            dispatch(setIntentionalLeave(false)); // Reset the flag
+            dispatch(conferenceLeft(action.conference));
+            dispatch(appNavigate(undefined));
+            break;
+        }
+
         if (!notifyOnConferenceDestruction) {
+            dispatch(setIntentionalLeave(false)); // Reset the flag
             dispatch(conferenceLeft(action.conference));
             dispatch(appNavigate(undefined));
             break;
@@ -36,6 +46,7 @@ MiddlewareRegistry.register(store => next => action => {
         ];
 
         dispatch(notifyConferenceFailed(reasonKey, () => {
+            dispatch(setIntentionalLeave(false)); // Reset the flag
             dispatch(conferenceLeft(action.conference));
             dispatch(appNavigate(undefined));
         }));

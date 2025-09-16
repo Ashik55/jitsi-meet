@@ -1,4 +1,5 @@
 import { appNavigate } from '../../app/actions.native';
+import { setIntentionalLeave } from '../conference/actions.any';
 import { IStore } from '../../app/types';
 import { navigateRoot } from '../../mobile/navigation/rootNavigationContainerRef';
 import { screen } from '../../mobile/navigation/routes';
@@ -32,5 +33,8 @@ export function connect(id?: string, password?: string) {
  * @returns {Function}
  */
 export function hangup(_requestFeedback = false) {
-    return (dispatch: IStore['dispatch']) => dispatch(appNavigate(undefined));
+    return (dispatch: IStore['dispatch']) => {
+        dispatch(setIntentionalLeave(true));
+        dispatch(appNavigate(undefined));
+    };
 }

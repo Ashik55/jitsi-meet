@@ -7,7 +7,7 @@ import { sendAnalytics } from '../../../analytics/functions';
 import { appNavigate } from '../../../app/actions';
 import { IReduxState } from '../../../app/types';
 import ColorSchemeRegistry from '../../../base/color-scheme/ColorSchemeRegistry';
-import { endConference } from '../../../base/conference/actions';
+import { endConference, setIntentionalLeave } from '../../../base/conference/actions.any';
 import { hideSheet } from '../../../base/dialog/actions';
 import BottomSheet from '../../../base/dialog/components/native/BottomSheet';
 import { PARTICIPANT_ROLE } from '../../../base/participants/constants';
@@ -33,12 +33,14 @@ function HangupMenu() {
 
     const handleEndConference = useCallback(() => {
         dispatch(hideSheet());
+        dispatch(setIntentionalLeave(true));
         sendAnalytics(createToolbarEvent('endmeeting'));
         dispatch(endConference());
     }, [ hideSheet ]);
 
     const handleLeaveConference = useCallback(() => {
         dispatch(hideSheet());
+        dispatch(setIntentionalLeave(true));
         sendAnalytics(createToolbarEvent('hangup'));
         dispatch(appNavigate(undefined));
     }, [ hideSheet ]);
