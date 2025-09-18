@@ -113,6 +113,13 @@ const ConferenceTimer = ({ textStyle }: IProps) => {
         setTimerValue(getLocalizedDurationFormatter(0));
     }, []);
 
+    // Initialize from persisted conference timestamp so the timer doesn't reset on remount/navigation
+    useEffect(() => {
+        if (conferenceTimestamp && !isInCallingState) {
+            setTimerStartTime(prev => prev ?? conferenceTimestamp);
+        }
+    }, [ conferenceTimestamp, isInCallingState ]);
+
     // Handle calling state and participant changes
     useEffect(() => {
         const callingStateChanged = previousCallingState.current !== isInCallingState;
@@ -126,10 +133,10 @@ const ConferenceTimer = ({ textStyle }: IProps) => {
                 setTimerStartTime(null);
             } else {
                 // Start timer when calling state ends (someone joined) and we don't have a timer yet
-                // BUT NOT if call is ending due to timeout (prevents brief timer flash before hangup)
-                if (!isCallEndingDueToTimeout()) {
-                    const now = new Date().getTime();
-                    setTimerStartTime(now);
+                // Prefer persisted conference timestamp if available; fallback to now
+                if (!isCallEndingDueToTimeout() && timerStartTime === null) {
+                    const start = conferenceTimestamp ?? new Date().getTime();
+                    setTimerStartTime(start);
                 }
             }
         }
@@ -137,15 +144,15 @@ const ConferenceTimer = ({ textStyle }: IProps) => {
         // Also handle direct participant count increase when not in calling state (fallback)
         // BUT NOT if call is ending due to timeout (prevents brief timer flash before hangup)
         if (participantCountChanged && !isInCallingState && timerStartTime === null && participantCount > 1 && !isCallEndingDueToTimeout()) {
-            const now = new Date().getTime();
-            setTimerStartTime(now);
+            const start = conferenceTimestamp ?? new Date().getTime();
+            setTimerStartTime(start);
         }
 
         // Emergency fallback: If we have participants but no calling state and no timer, force start
         // BUT NOT if call is ending due to timeout (prevents brief timer flash before hangup)
         if (!isInCallingState && participantCount > 1 && timerStartTime === null && !interval.current && !isCallEndingDueToTimeout()) {
-            const now = new Date().getTime();
-            setTimerStartTime(now);
+            const start = conferenceTimestamp ?? new Date().getTime();
+            setTimerStartTime(start);
         }
 
         // Update refs after processing
